@@ -1,0 +1,21 @@
+apiVersion: spire.spiffe.io/v1alpha1
+kind : ClusterFederatedTrustDomain
+metadata:
+  name: cluster2
+spec:
+  trustDomain: cluster1.org
+  bundleEndpointURL: https://10.10.0.131:8443
+  bundleEndpointProfile:
+    type: https_spiffe
+    endpointSPIFFEID: spiffe://cluster1.org/spire/server
+  trustDomainBundle: |-
+    {
+        "keys": [
+            {
+                ...
+            },
+            {
+                ...
+            }
+        ]
+    }

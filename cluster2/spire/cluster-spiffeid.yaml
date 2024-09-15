@@ -1,0 +1,11 @@
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: make-spiffeid
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}/app/{{ index .PodMeta.Labels \"app\" }}"
+  podSelector:
+    matchLabels:
+      spiffe.io/spire-managed-identity: "true"
+  # After apply cluster-federated-trust-domain.yaml
+  # federatesWith: ["cluster1.org"]

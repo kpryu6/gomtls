@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-client
+  namespace: default
+  labels:
+    app: helloworld-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld-client
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app: helloworld-client
+        spiffe.io/spire-managed-identity: "true"  # SPIRE에 의해 자동으로 SPIFFE ID 생성
+    spec:
+      containers:
+      - name: helloworld-client
+        image: localhost:10000/helloworld-client:mtls
+        imagePullPolicy: Always
+        args: ["--addr", "10.10.0.132:8123"]
+        # TODO: volume mounts
+        # TODO: env
+        # spiffe-csi 경로 (svid 있는 경로)
+        env:
+        - name: SPIFFE_ENDPOINT_SOCKET
+          value: "unix:///tmp/spiffe-certs/socket"
+        # 컨테이너 내부 경로
+        volumeMounts:
+        # - name: spire-agent-socket-dir
+        #   mountPath: /run/secrets/workload-spiffe-uds
+        #   readOnly: true
+        # Custom
+        - name: spiffe-csi
+          mountPath: /tmp/spiffe-certs
+          readOnly: true
+      # 실제 spire-agent의 socket_path (노드 안)
+      volumes:
+      # - name: spire-agent-socket-dir
+      #   hostPath:
+      #     path: /run/secrets/workload-spiffe-uds
+      #     type: DirectoryOrCreate
+      - name: spiffe-csi
+        csi:
+          driver: csi.spiffe.io
+          readOnly: true
